@@ -11,8 +11,8 @@ typedef struct {
 } dataset_t;
 
 int make_test_data(dataset_t*, int, int);
-vec_t* nn_create_heap_list(int, int);
-void nn_free_heap_list(vec_t*, int);
+vec_t* heap_list_create(int, int);
+void heap_list_free(vec_t*, int);
 vec_t* nn_descent(dataset_t, float(*)(float*, float*, int), int, float, float);
 int sample_neighbors(vec_t*, vec_t*, int, bool);
 int update_nn(vec_t*, int, float);

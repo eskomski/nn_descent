@@ -16,14 +16,16 @@ float l2(float* v1, float* v2, int d)
 int main()
 {
     dataset_t data;
-    if(make_test_data(&data, 100, 10)) return 1;
+    if(make_test_data(&data, 1000000, 10)) return 1;
 
-    vec_t* B = nn_descent(data, &l2, 10, 1.0, 0.01);
+    vec_t* B = nn_descent(data, &l2, 20, 1.0, 0.001);
+    /*
     for (int i = 0; i < data.size; i++) {
         heap_print(&B[i]);
     }
+    */
 
-    nn_free_heap_list(B, data.size);
+    heap_list_free(B, data.size);
     free(data.values);
 }
 
