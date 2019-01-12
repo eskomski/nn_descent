@@ -75,8 +75,6 @@ vec_t* nn_descent(dataset_t data, float(*metric)(float*, float*, int), int k, fl
         return NULL;
     }
     printf("beginning nn descent...\n");
-    // TODO: really should check if any of these turn out to fail,
-    // then free the ones that didn't :S
 
     vec_t* B     = heap_list_create(data.size, k);
     vec_t* old   = heap_list_create(data.size, k);
@@ -84,11 +82,22 @@ vec_t* nn_descent(dataset_t data, float(*metric)(float*, float*, int), int k, fl
     vec_t* new   = heap_list_create(data.size, k);
     vec_t* new_r = heap_list_create(data.size, k);
 
+    if (!B || !old || !old_r || !new || !new_r) {
+        printf("error: failed to allocate one or more heap lists\n");
+        if (B) heap_list_free(B, data.size);
+        if (old) heap_list_free(old, data.size);
+        if (old_r) heap_list_free(old_r, data.size);
+        if (new) heap_list_free(new, data.size);
+        if (new_r) heap_list_free(new_r, data.size);
+        return NULL;
+    }
+
     // initialize heap list B
     for (int i = 0; i < data.size; i++) {
         // sample 
         for (int j = 0; j < k;) {
             node_t t = {(int)rand() % data.size, FLT_MAX, true};
+            t.new = true;
             if (heap_insert(&B[i], &t) == 1) j++;
         }
     }
@@ -131,6 +140,7 @@ vec_t* nn_descent(dataset_t data, float(*metric)(float*, float*, int), int k, fl
                     if (u1.id <= u2.id || heap_find_by_index(&old[v], u2.id) == -1) continue;
                     float l = metric(data.values[u1.id], data.values[u2.id], data.dim);
                     u1.val = u2.val = l;
+                    u1.new = u2.new = true;
                     c += nn_update(&B[u1.id], &u2);
                     c += nn_update(&B[u2.id], &u1);
                 }
@@ -141,6 +151,7 @@ vec_t* nn_descent(dataset_t data, float(*metric)(float*, float*, int), int k, fl
 
     printf("done, cleaning up...\n");
 
+    vec_free(&sample_buf);
     heap_list_free(old, data.size);
     heap_list_free(old_r, data.size);
     heap_list_free(new, data.size);
@@ -181,15 +192,6 @@ int sample_neighbors(vec_t* dst, vec_t* src, int k, bool use_new)
         }
         if (heap_insert(dst, &t)) j++;
     }
-
-    /*
-    for (int i = 0; i < src->size && j < k; i++) {
-        if (use_new && !src->arr[i].new) continue;
-        if (heap_insert(dst, &(src->arr[i])) == -1) return -1;
-        if (use_new) src->arr[i].new = false;
-        j++;
-    }
-    */
 
     return j;
 }
