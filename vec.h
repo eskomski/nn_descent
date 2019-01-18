@@ -10,6 +10,7 @@ typedef struct {
 
 typedef struct {
     int size, _capacity;
+    float min;
     node_t* arr;
 } vec_t;
 
@@ -22,5 +23,4 @@ int vec_insert(vec_t*, node_t*);
 int heap_insert(vec_t*, node_t*);
 int heap_union(vec_t*, vec_t*);
 int heap_find_by_index(vec_t*, int);
-void heap_print(vec_t*);
 
